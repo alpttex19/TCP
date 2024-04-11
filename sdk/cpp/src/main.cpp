@@ -73,6 +73,7 @@ bool unix_socket_recv(uint8_t buf[], size_t len) {
     auto json_bytes = event["bytes"].get_binary();
     std::vector<uint8_t> bytes = std::vector(json_bytes.begin(), json_bytes.end());
     auto flags = event["flags"].get<uint32_t>();
+    std::cout << "Received event: " << conn << " flags: " << flags << std::endl;
     if (flags == 0x0) {
         app_send(conn, bytes);
     } else if (flags == 0x1) {
@@ -98,6 +99,7 @@ int main() {
                                                                                "/tmp/network-exp4-driver.socket"};
     if (bind(unix_sock, reinterpret_cast<const sockaddr *>(&local_addr), sizeof(sockaddr_un))) {
         perror("bind");
+        std::cout<< "bind函数调用失败"<<std::endl;
         exit(1);
     }
     while (true) {

@@ -21,4 +21,10 @@ void tcp_rx(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes);
 
 void tick();
 
+// // 将报头装入vector<uint8_t>
+// std::vector<uint8_t> serializeTcpHeader(const TcpHeader& header, std::vector<uint8_t> &bytes);
+// 将connection对象转换为字符串
+std::string hash_conn(const ConnectionIdentifier& conn);
+
 #endif //NETWORK_EXP4_SDK_OUTGOING_H
+
