@@ -39,6 +39,8 @@ class TCPPacket:
             0,  # Checksum (initial value)
             0  # Urgent pointer
         )
+        # print("--------------packet-------------------")
+        # print(packet.hex())
         if self.data!=None:
             packet = packet+self.data
         pseudo_hdr = struct.pack(
@@ -48,11 +50,13 @@ class TCPPacket:
             socket.IPPROTO_TCP,  # Protocol ID
             len(packet)  # TCP Length
         )
-        print(pseudo_hdr)
-        import pdb; pdb.set_trace()
+        # print("--------------packet+pseudo-------------------")
+        # print((pseudo_hdr+packet).hex())
         checksum = chksum(pseudo_hdr + packet)
+        # print(f'checksum: {checksum:02x}')
         packet = packet[:16] + struct.pack('H', checksum) + packet[18:]
-        print(packet)
+        # print("--------------packet-------------------")
+        # print(packet.hex())
         return packet
 
 

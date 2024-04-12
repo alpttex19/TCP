@@ -80,8 +80,11 @@ def app_send(conn: ConnectionIdentifier, data: bytes):
     key = hash_conn(conn)
     print('now send data on established tcp')
     if len(data) == 0:
+        print("要发送的数据大小为0")
         flags = 0b010000
     else:
+        print("要发送的数据大小为", len(data))
+        print(data)
         flags = 0b011000
     seq_num = state_machine[key]['server_ack']
     ack_num = state_machine[key]['current_ack']
@@ -95,6 +98,7 @@ def app_send(conn: ConnectionIdentifier, data: bytes):
                        data)
     tcp_data = packet.build()
     tcp_tx(conn, tcp_data)
+    print(flags, state_machine[key]['connect_state'], state_machine[key]['current_ack'], state_machine[key]['server_ack'])
     state_machine[key]['server_ack'] += len(data)
 
 
@@ -167,7 +171,6 @@ def tcp_rx(conn: ConnectionIdentifier, data: bytes):
     :return: 
     """
     # TODO 请实现此函数
-    # print("tcp_rx", conn, data.decode(errors='replace'))
     global state_machine
     key = hash_conn(conn)
     state_machine[key]['tmp_conn'] = conn
@@ -178,7 +181,8 @@ def tcp_rx(conn: ConnectionIdentifier, data: bytes):
     rst = (mix & 0b0000000000000100) >> 2
     ack = (mix & 0b0000000000010000) >> 4
     real_data = data[4 * offset:]
-
+    print(scr_port, dst_port, seq_num, ack_num,offset, fin, syn, rst, ack, len(real_data))
+    print(state_machine[key]['connect_state'], state_machine[key]['current_ack'], state_machine[key]['server_ack'])
     if state_machine[key]['current_ack'] == 0:
         state_machine[key]['current_ack'] = seq_num
 
