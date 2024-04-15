@@ -210,19 +210,11 @@ void tcp_rx(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes) {
             state_machine[key].seq_tmp = 0;
             state_machine[key].tmp_save = {};
         }
-        auto it = state_machine[key].tmp_save.find(state_machine[key].current_ack);
-        if (it !=  state_machine[key].tmp_save.end()){
-            std::cout<<"如果当前的ack在tmp_save中，执行此操作"<<std::endl;
-            tcp_rx(conn, state_machine[key].tmp_save[state_machine[key].current_ack]);
-        }
     }
     else {
-        if (seq_num > state_machine[key].current_ack){
-            std::cout<<"如果当前的seq_num大于当前的ack，执行此操作"<<std::endl;
-            state_machine[key].tmp_save[seq_num] = bytes;
-        }
+        std::cout<<"当前的ack和seq不匹配，将报文存入tmp_save"<<std::endl;
+        state_machine[key].tmp_save[seq_num] = bytes;
     }
-
 }
 
 /**

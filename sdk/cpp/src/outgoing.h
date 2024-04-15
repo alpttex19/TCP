@@ -18,7 +18,7 @@
 * 状态机的结构体
 */
 struct State {
-    int connect_state; // 状态0,1,2,3,4,5
+    int connect_state; // 状态0,1,2,3,4,5 分别代表CLOSED, LISTEN, SYN_SENT, SYN_RCVD, ESTABLISHED, CLOSE_WAIT
     uint32_t client_isn;
     uint32_t server_ack;  // 最新server发来报文的ack
     uint32_t current_ack;  // 当前想发送报文的ack

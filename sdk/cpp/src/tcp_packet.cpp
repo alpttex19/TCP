@@ -52,34 +52,11 @@ std::vector<uint8_t> TCPPacket::build() {
     std::vector<uint8_t> pseudo = parseIPAddress(pseudo_hdr);
     pseudo.push_back(packet_size >> 8);  // 高字节
     pseudo.push_back(packet_size & 0xFF);  // 低字节        
-
-    // std::cout << "---------------pseudo---------------" <<std::endl;
-    // for (size_t i = 0; i < pseudo.size(); ++i) {
-    //     std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(pseudo[i]) << " ";
-    // }
-    // std::cout << std::endl;
-    // std::cout << "---------------packet---------------" <<std::endl;
-    // for (size_t i = 0; i < packet.size(); ++i) {
-    //     std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(packet[i]) << " ";
-    // }
-    // std::cout << std::endl;
     std::vector<uint8_t> pseudo_copy = pseudo;
     pseudo_copy.insert(pseudo_copy.end(), packet.begin(), packet.end());
-    // std::cout << "---------------pseudo_copy---------------" <<std::endl;
-    // for (size_t i = 0; i < pseudo_copy.size(); ++i) {
-    //     std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(pseudo_copy[i]) << " ";
-    // }
-    // std::cout << std::endl;
-
     uint16_t checksum = chksum(pseudo_copy);
     tcp_header.th_sum = htons(checksum);
     memcpy(&packet[16], &tcp_header.th_sum, sizeof(tcp_header.th_sum));
-
-    // std::cout << "---------------packet---------------" <<std::endl;
-    // for (size_t i = 0; i < packet.size(); ++i) {
-    //     std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(packet[i]) << " ";
-    // }
-    // std::cout << std::endl;
     return packet;
 }
 
