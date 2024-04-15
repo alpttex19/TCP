@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(nlohmann_json)
 
-add_executable(sdk src/main.cpp src/api.cpp src/api.h src/outgoing.cpp src/outgoing.h)
+add_executable(sdk src/main.cpp src/api.cpp src/api.h src/outgoing.cpp src/outgoing.h src/tcp_packet.h src/tcp_packet.cpp)
 
 target_link_libraries(sdk PRIVATE nlohmann_json::nlohmann_json)

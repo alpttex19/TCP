@@ -201,6 +201,30 @@ src/outgoing.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdk.dir/build.make CMakeFiles/sdk.dir/src/outgoing.cpp.s
 .PHONY : src/outgoing.cpp.s
 
+src/tcp_packet.o: src/tcp_packet.cpp.o
+.PHONY : src/tcp_packet.o
+
+# target to build an object file
+src/tcp_packet.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdk.dir/build.make CMakeFiles/sdk.dir/src/tcp_packet.cpp.o
+.PHONY : src/tcp_packet.cpp.o
+
+src/tcp_packet.i: src/tcp_packet.cpp.i
+.PHONY : src/tcp_packet.i
+
+# target to preprocess a source file
+src/tcp_packet.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdk.dir/build.make CMakeFiles/sdk.dir/src/tcp_packet.cpp.i
+.PHONY : src/tcp_packet.cpp.i
+
+src/tcp_packet.s: src/tcp_packet.cpp.s
+.PHONY : src/tcp_packet.s
+
+# target to generate assembly for a file
+src/tcp_packet.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdk.dir/build.make CMakeFiles/sdk.dir/src/tcp_packet.cpp.s
+.PHONY : src/tcp_packet.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -219,6 +243,9 @@ help:
 	@echo "... src/outgoing.o"
 	@echo "... src/outgoing.i"
 	@echo "... src/outgoing.s"
+	@echo "... src/tcp_packet.o"
+	@echo "... src/tcp_packet.i"
+	@echo "... src/tcp_packet.s"
 .PHONY : help
 
 

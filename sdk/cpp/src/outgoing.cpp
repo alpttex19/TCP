@@ -5,7 +5,7 @@
  * 提示：TCP是有状态的协议，因此你大概率，会需要一个什么样的数据结构来记录和维护所有连接的状态
  */
 #include "outgoing.h"
-#include "tcp_packet.h"
+
 
 std::unordered_map<std::string, State> state_machine;
 

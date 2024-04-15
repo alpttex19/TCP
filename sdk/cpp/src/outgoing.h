@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <map>
 #include "api.h"
+#include "tcp_packet.h"
 
 /*
 * 状态机的结构体

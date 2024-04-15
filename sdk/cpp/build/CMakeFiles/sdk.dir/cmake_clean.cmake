@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/sdk.dir/src/main.cpp.o.d"
   "CMakeFiles/sdk.dir/src/outgoing.cpp.o"
   "CMakeFiles/sdk.dir/src/outgoing.cpp.o.d"
+  "CMakeFiles/sdk.dir/src/tcp_packet.cpp.o"
+  "CMakeFiles/sdk.dir/src/tcp_packet.cpp.o.d"
   "sdk"
   "sdk.pdb"
 )
