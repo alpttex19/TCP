@@ -17,7 +17,7 @@ std::unordered_map<std::string, State> state_machine;
  */
 void app_connect(ConnectionIdentifier &conn) {
     // TODO 请实现此函数
-    std::cout << "app_connect" << conn << std::endl;
+    // std::cout << "app_connect" << conn << std::endl;
     std::string key = hash_conn(conn);
     if (state_machine.find(key) == state_machine.end()) { // state machine中不存在当前连接，于是新建当前连接记录
         state_machine[key] = State{0, 0, 0, 0, 0, conn, {}};
@@ -51,24 +51,22 @@ void app_connect(ConnectionIdentifier &conn) {
  */
 void app_send(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes) {
     // TODO 请实现此函数
-    std::cout << "app_send" << conn << std::endl;
+    // std::cout << "app_send" << conn << std::endl;
     std::string key = hash_conn(conn);
     std::cout << "在已建立的连接上发送数据" << std::endl;
     uint8_t flags = 0x10;
     uint32_t seq_num = state_machine[key].server_ack;
     uint32_t ack_num = state_machine[key].current_ack;
     if (bytes.size() == 0) {
-        std::cout<< "要发送的数据大小为0\n";
+        // std::cout<< "要发送的数据大小为0\n";
         flags = 0x10;
         send_packet(conn, flags, seq_num, ack_num);
     }
     else {
-        std::cout<< "要发送的数据大小为"<< bytes.size() << "\n";
+        // std::cout<< "要发送的数据大小为"<< bytes.size() << "\n";
         flags = 0x18;
         send_packet(conn, flags, seq_num, ack_num, bytes);
     }
-    std::cout << "flags:"<< (unsigned int)flags <<"\n";
-    std::cout << state_machine[key].connect_state<<" "<<state_machine[key].current_ack <<" " << state_machine[key].server_ack << std::endl;
     state_machine[key].server_ack += bytes.size();
 }
 
@@ -78,7 +76,7 @@ void app_send(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes) {
  */
 void app_fin(ConnectionIdentifier &conn) {
     // TODO 请实现此函数
-    std::cout << "app_fin" << conn << std::endl;
+    // std::cout << "app_fin" << conn << std::endl;
     std::string key = hash_conn(conn);
     std::cout << "发送半关闭连接(FIN)" << std::endl;
     if (state_machine[key].connect_state == 2){
@@ -96,7 +94,7 @@ void app_fin(ConnectionIdentifier &conn) {
  */
 void app_rst(ConnectionIdentifier &conn) {
     // TODO 请实现此函数
-    std::cout << "app_rst" << conn << std::endl;
+    // std::cout << "app_rst" << conn << std::endl;
     std::string key = hash_conn(conn);
     std::cout << "发送重置连接请求(RES)" << std::endl;
     uint8_t flags = 0x14;
@@ -104,6 +102,7 @@ void app_rst(ConnectionIdentifier &conn) {
     uint32_t ack_num = state_machine[key].current_ack;
     send_packet(conn, flags, seq_num, ack_num);
     release_connection(conn);
+    // 重置TCP状态机
     state_machine[key].connect_state = 0;
     state_machine[key].client_isn = 0;
     state_machine[key].server_ack = 0;
@@ -120,7 +119,7 @@ void app_rst(ConnectionIdentifier &conn) {
  */
 void tcp_rx(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes) {
     // TODO 请实现此函数
-    std::cout << "tcp_rx" << conn << std::endl;
+    // std::cout << "tcp_rx" << conn << std::endl;
     std::string key = hash_conn(conn);
     state_machine[key].tmp_conn = conn;
     // 将报文解析为scr_port, dst_port, seq_num, ack_num, mixed, window_size, checksum, urgent_pointer
@@ -132,7 +131,7 @@ void tcp_rx(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes) {
     uint16_t window_size =    ntohs(bytes[14] | bytes[15]<<8);
     uint16_t checksum =       ntohs(bytes[16] | bytes[17]<<8);
     uint16_t urgent_pointer = ntohs(bytes[18] | bytes[19]<<8);
-    
+    // 解析mixed为fin, syn, rst, ack
     int Offset = (mixed >> 12);
     int fin = (mixed & 0x01);
     int syn = (mixed & 0x02) >> 1;
@@ -140,10 +139,7 @@ void tcp_rx(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes) {
     int ack = (mixed & 0x10) >> 4;
     std::vector<uint8_t> real_data;
     real_data.insert(real_data.end(),bytes.begin() + Offset * 4, bytes.end());
-    std::cout << src_port << " " << dst_port << " " << seq_num << " " << ack_num << " "
-         << Offset << " " << fin << " " << syn << " " << rst << " " << ack <<" "<<real_data.size()<< std::endl;
-    std::cout << state_machine[key].connect_state<<" "<<state_machine[key].current_ack <<" " << state_machine[key].server_ack << std::endl;
-    
+
     if (state_machine[key].current_ack == 0) {
         state_machine[key].current_ack = seq_num;
     }
@@ -180,6 +176,7 @@ void tcp_rx(ConnectionIdentifier &conn, std::vector<uint8_t> &bytes) {
         else if (state_machine[key].connect_state == 4 && fin == 1){
             std::cout<<"收到FIN=1的报文，发送给上层应用"<<std::endl;
             state_machine[key].connect_state = 5;
+            state_machine[key].current_ack += 1;
             app_peer_fin(conn);
             send_ack(conn);
             std::cout << "释放连接" << std::endl;
@@ -239,6 +236,7 @@ void tick() {
     }
 }
 
+// 发送ack
 void send_ack(ConnectionIdentifier& conn){
     std::string key = hash_conn(conn);
     uint8_t flags = 0x10;
@@ -247,6 +245,7 @@ void send_ack(ConnectionIdentifier& conn){
     send_packet(conn, flags, seq_num, ack_num); 
 }
 
+// 发送TCP数据包
 void send_packet(ConnectionIdentifier& conn, uint8_t flags, uint32_t seq_num, uint32_t ack_num, const std::vector<uint8_t> &cont_data){
     std::string key = hash_conn(conn);
     std::vector<uint8_t> packet = TCPPacket(     

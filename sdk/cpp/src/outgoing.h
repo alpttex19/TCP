@@ -41,7 +41,9 @@ void tick();
 
 // 将connection对象转换为字符串
 std::string hash_conn(const ConnectionIdentifier& conn);
+// 发送ack报文
 void send_ack(ConnectionIdentifier& conn);
+// 发送包含数据的TCP报文
 void send_packet(ConnectionIdentifier& conn, 
                               uint8_t flags, 
                               uint32_t seq_num, 

@@ -1,7 +1,13 @@
+/*
+* tcp_packet.cpp
+* 用于构建TCP数据包，包含TCP报文构建，序列化，校验和计算等功能
+*/
+
 #include "tcp_packet.h"
 
-
-
+/*
+* 构造函数，用于构建一个TCP数据包
+*/
 TCPPacket::TCPPacket(
     const std::string& src_ip,
     uint16_t src_port,
@@ -21,6 +27,9 @@ TCPPacket::TCPPacket(
         cont_data(cont_data)
     {}
 
+/*
+* 用于将TCP数据包序列化为字节流（大端序）
+*/
 std::vector<uint8_t> TCPPacket::build() {
     struct tcphdr tcp_header;
     tcp_header.th_sport = htons(src_port);    // Source Port
@@ -39,17 +48,16 @@ std::vector<uint8_t> TCPPacket::build() {
     if ( cont_data.size() != 0){
         packet.insert(packet.end(), cont_data.begin(), cont_data.end());
     }
-
-    std::string pseudo_hdr; //伪首部，为了计算校验和
+    // 伪首部，为了计算校验和
+    std::string pseudo_hdr; 
     pseudo_hdr.append(src_ip);
     pseudo_hdr.append(".");
     pseudo_hdr.append(dts_ip);
     pseudo_hdr.append(".0.6");  // Protocol ID and TCP Length
-    // packet size不对
-    // pseudo_hdr.append(std::to_string(packet_size));
-    // std::cout << pseudo_hdr << "\n";
+    // 将ip地址转换为字节流
     uint16_t packet_size = ((uint16_t)packet.size());
     std::vector<uint8_t> pseudo = parseIPAddress(pseudo_hdr);
+
     pseudo.push_back(packet_size >> 8);  // 高字节
     pseudo.push_back(packet_size & 0xFF);  // 低字节        
     std::vector<uint8_t> pseudo_copy = pseudo;
@@ -60,37 +68,34 @@ std::vector<uint8_t> TCPPacket::build() {
     return packet;
 }
 
-
+// 用于计算校验和，包括TCP头部和伪首部
 uint16_t TCPPacket::chksum(const std::vector<uint8_t> packet) {
     uint32_t sum = 0;
     size_t i = 0;
     size_t packetSize = packet.size();
 
-    // Sum up all 16-bit words
     while (i < packetSize - 1) {
         sum += (packet[i] << 8) + packet[i + 1];
         i += 2;
     }
 
-    // If the packet size is odd, add the last byte
     if (i < packetSize)
         sum += packet[i] << 8;
 
-    // Fold 32-bit sum to 16 bits
     while (sum >> 16)
         sum = (sum & 0xFFFF) + (sum >> 16);
 
-    // Take one's complement of the sum
     return ~sum;
 }
 
-
+// 用于序列化TCP头部
 std::vector<uint8_t> TCPPacket::serialize_tcphdr(const tcphdr& header) {
     std::vector<uint8_t> buffer(sizeof(header));
     std::memcpy(buffer.data(), &header, sizeof(header));
     return buffer;
 }
 
+// 用于将字符串形式的IP地址转换为字节流
 std::vector<uint8_t> TCPPacket::parseIPAddress(const std::string& ip_string) {
     std::vector<uint8_t> result;
     std::stringstream ss(ip_string);
